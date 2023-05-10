@@ -5,9 +5,12 @@ import matplotlib.pyplot as plt
 import itertools
 def createRandomPoints(siteNames):
     points ={}
-    nums = np.random.choice(range(-100,100+1), size=(1, 2), replace=False) 
+    nums = np.random.choice(range(-1,1+1), size=(1, 2), replace=False) 
     for item in siteNames:
-        nums = np.random.choice(range(-100,100+1), size=(1, 2), replace=False) 
+        nums = np.random.uniform(low=-100, high=100, size=(1, 2))
+        # Keep only the points that fall inside the circle of radius 1
+        #distances = np.sqrt(np.sum(points**2, axis=1))
+        #points = points[distances <= 1]
         points[item] = np.asarray((nums[0][0], nums[0][1]))
     return points
 
@@ -46,17 +49,28 @@ def calculateDistanceBetweenTwoPoints(firstPoint, secondPoint):
     return np.linalg.norm(firstPoint - secondPoint)
 def calculateDirectionBetweenTwoPoints(firstPoint, secondPoint):
     return firstPoint-secondPoint
+def deleteZeroesFromBoth(firstArray,SecondArray):
+    mask = np.logical_or(firstArray, SecondArray)
+    indices = [i for i, x in enumerate(mask) if x]
+    return np.array([firstArray[i] for i in indices]),  np.array([SecondArray[i] for i in indices])
 
 def calculateForceMagnitud(pair, dataset_I):
     M=dataset_I.shape[1]-1
     firstRowNumber = dataset_I.loc[dataset_I["SiteName"]==pair[0]].index[0]
     secondRowNumber = dataset_I.loc[dataset_I["SiteName"]==pair[1]].index[0]
     dataset_I = dataset_I.drop(dataset_I.columns[0], axis = 1)
-    number= np.count_nonzero((dataset_I.loc[firstRowNumber,:].astype(int))&(dataset_I.loc[secondRowNumber,:].astype(int)))/M
+    firstSiteRow, secondSiteRow =deleteZeroesFromBoth(dataset_I.loc[firstRowNumber,:].astype(int),dataset_I.loc[secondRowNumber,:].astype(int))
+    M=len(firstSiteRow)
+    number= np.count_nonzero((firstSiteRow)&(secondSiteRow))/M
+    #First Try
     if number!=0:
         return number
     else:
         return -0.01
+    #if number>=M/2:
+    #    return number
+    #else:
+    #    return number-0.5
     
 #Number of time steps I am going to use
 Nt = 10
