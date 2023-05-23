@@ -14,6 +14,17 @@ def createRandomPoints(siteNames):
         points[item] = np.asarray((nums[0][0], nums[0][1]))
     return points
 
+def createNonrandomPoints(siteNames):
+    points={}
+    i=0
+    j=0
+    for item in siteNames:
+        points[item] = np.array([i,j])
+        if i==1:
+            j=+1
+            i=0
+        i=+1
+    return points
 def printingImagesWithNames(points):
     # Create empty lists for x and y coordinates
     x = []
@@ -71,7 +82,16 @@ def calculateForceMagnitud(pair, dataset_I):
     #    return number
     #else:
     #    return number-0.5
-    
+def calculateForceMagnitud1(pair, dataset_I):
+    M=dataset_I.shape[1]-1
+    firstRowNumber = dataset_I.loc[dataset_I["SiteName"]==pair[0]].index[0]
+    secondRowNumber = dataset_I.loc[dataset_I["SiteName"]==pair[1]].index[0]
+    dataset_I = dataset_I.drop(dataset_I.columns[0], axis = 1)
+    number= np.count_nonzero((dataset_I.loc[firstRowNumber,:].astype(int))&(dataset_I.loc[secondRowNumber,:].astype(int)))/M
+    if number!=0:
+        return number
+    else:
+        return -0.01
 #Number of time steps I am going to use
 Nt = 10
 #Parameter that sometimes helps
@@ -81,34 +101,39 @@ Ntmax=10
 dt =courant*Ntmax/Nt
 
 cwd = Path.cwd()
-file_I = Path("Data/OutGeneralInfo/bell_Sbin.csv")
+file_I = Path("Data/ThreePointsData/first_three_point_try.csv")
 file_open = cwd / file_I
 
 dataset_I = pd.read_csv(file_open)
-points = createRandomPoints(dataset_I["SiteName"])
+points = createNonrandomPoints(dataset_I["SiteName"])
 constX, constY = gettingConstants(points)
 printingImagesWithNames(points)
-
+print()
 for t in np.arange(0,Ntmax, dt):
     forces =np.zeros((len(dataset_I),2))
     for pair in itertools.combinations(dataset_I["SiteName"], 2):
         distance=calculateDistanceBetweenTwoPoints(points[pair[0]], points[pair[1]])
         direction=calculateDirectionBetweenTwoPoints(points[pair[0]], points[pair[1]])
-        force =calculateForceMagnitud(pair,dataset_I)
+        #This force is the one between the arrays of the sites
+        force =calculateForceMagnitud1(pair,dataset_I)
+        #Calculate the i,j position of boths sites in the 
         firstRowNumber = dataset_I.loc[dataset_I["SiteName"]==pair[0]].index[0]
         secondRowNumber = dataset_I.loc[dataset_I["SiteName"]==pair[1]].index[0]
+        #This piece of the code should be different, it deals for divisions of 0
         if distance !=0:
             alfa1=(1/distance)*0.5*force*direction[0]*t**2
             beta1=(1/distance)*0.5*force*direction[1]*t**2
         else:
             alfa1=0.0
             beta1=0.0
+        #Adds boths terms in each site for later use the terms are the ones of 0.5*t**2
         forces[firstRowNumber]+= np.asarray((alfa1,beta1))
         forces[secondRowNumber]+= np.asarray((-alfa1,-beta1))
         #if firstRowNumber==1:
         #    print("Forces=",forces[firstRowNumber])
         #    print("alfa=", alfa1)
         #    print("beta=", beta1)
+    #End part where each particle should have it forces of others
     for i, siteNames in enumerate(dataset_I["SiteName"]):
         x1=constX[i]+forces[i][0]
         y1=constY[i]+forces[i][1]
