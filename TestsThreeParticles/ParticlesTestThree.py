@@ -57,6 +57,8 @@ def solvingMotionEquations(points):
     return points
 
 def calculateDistanceBetweenTwoPoints(firstPoint, secondPoint):
+    print("Resta",firstPoint - secondPoint)
+    print("distancia",np.linalg.norm(firstPoint - secondPoint))
     return np.linalg.norm(firstPoint - secondPoint)
 def calculateDirectionBetweenTwoPoints(firstPoint, secondPoint):
     return firstPoint-secondPoint
@@ -91,7 +93,7 @@ def calculateForceMagnitud1(pair, dataset_I):
     if number!=0:
         return number
     else:
-        return -0.01
+        return -0.1
 #Number of time steps I am going to use
 Nt = 10
 #Parameter that sometimes helps
@@ -117,12 +119,18 @@ for t in np.arange(0,Ntmax, dt):
         #This force is the one between the arrays of the sites
         force =calculateForceMagnitud1(pair,dataset_I)
         #Calculate the i,j position of boths sites in the 
+        print("Points = ",(pair))
+        print("Distance = ", (distance))
+        print("Direction = ", (direction))
+        print("Force=",force)
+        
         firstRowNumber = dataset_I.loc[dataset_I["SiteName"]==pair[0]].index[0]
         secondRowNumber = dataset_I.loc[dataset_I["SiteName"]==pair[1]].index[0]
         #This piece of the code should be different, it deals for divisions of 0
         if distance !=0:
             alfa1=(1/distance)*0.5*force*direction[0]*t**2
             beta1=(1/distance)*0.5*force*direction[1]*t**2
+            print("entrooo")
         else:
             alfa1=0.0
             beta1=0.0
@@ -131,12 +139,17 @@ for t in np.arange(0,Ntmax, dt):
         forces[secondRowNumber]+= np.asarray((-alfa1,-beta1))
         #if firstRowNumber==1:
         #    print("Forces=",forces[firstRowNumber])
-        #    print("alfa=", alfa1)
-        #    print("beta=", beta1)
+        print("alfa=", alfa1)
+        print("beta=", beta1)
+        print("***********************")
     #End part where each particle should have it forces of others
     for i, siteNames in enumerate(dataset_I["SiteName"]):
         x1=constX[i]+forces[i][0]
         y1=constY[i]+forces[i][1]
+        
+        print("x1",x1)
+        print("y1",y1)
+        print("***********************")
         points[siteNames]=np.asarray((x1,y1))
 
 
