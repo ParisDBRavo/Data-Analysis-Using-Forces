@@ -66,18 +66,27 @@ def calculateForceMagnitud(pair, dataset_I):
     if number!=0:
         return number
     else:
-        return -0.01
+        return -0.1
     #if number>=M/2:
     #    return number
     #else:
     #    return number-0.5
-    
+def calculateForceMagnitud1(pair, dataset_I):
+    M=dataset_I.shape[1]-1
+    firstRowNumber = dataset_I.loc[dataset_I["SiteName"]==pair[0]].index[0]
+    secondRowNumber = dataset_I.loc[dataset_I["SiteName"]==pair[1]].index[0]
+    dataset_I = dataset_I.drop(dataset_I.columns[0], axis = 1)
+    number= np.count_nonzero((dataset_I.loc[firstRowNumber,:].astype(int))&(dataset_I.loc[secondRowNumber,:].astype(int)))/M
+    if number!=0:
+        return number
+    else:
+        return -0.1
 #Number of time steps I am going to use
-Nt = 10
+Nt = 3
 #Parameter that sometimes helps
 courant = 1
 #maximum time
-Ntmax=10
+Ntmax=100
 dt =courant*Ntmax/Nt
 
 cwd = Path.cwd()
@@ -94,7 +103,7 @@ for t in np.arange(0,Ntmax, dt):
     for pair in itertools.combinations(dataset_I["SiteName"], 2):
         distance=calculateDistanceBetweenTwoPoints(points[pair[0]], points[pair[1]])
         direction=calculateDirectionBetweenTwoPoints(points[pair[0]], points[pair[1]])
-        force =calculateForceMagnitud(pair,dataset_I)
+        force =calculateForceMagnitud1(pair,dataset_I)
         firstRowNumber = dataset_I.loc[dataset_I["SiteName"]==pair[0]].index[0]
         secondRowNumber = dataset_I.loc[dataset_I["SiteName"]==pair[1]].index[0]
         if distance !=0:
@@ -115,6 +124,6 @@ for t in np.arange(0,Ntmax, dt):
         points[siteNames]=np.asarray((x1,y1))
 
 
-    
+    print(t)
     printingImagesWithNames(points)
     #print(t)
