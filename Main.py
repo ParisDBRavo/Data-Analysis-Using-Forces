@@ -8,8 +8,7 @@ import plotly.io as pio
 import plotly.figure_factory as ff
 import plotly.graph_objects as go
 import pandas as pd
-import xlrd
-import openpyxl
+import DataAnalysisFunctions
 import numpy as np
 from matplotlib.dates import DateFormatter
 import datetime as dt
@@ -19,53 +18,12 @@ from scipy.stats import chi2, chi2_contingency
 from scipy.spatial.distance import pdist
 from scipy.spatial.distance import squareform
 import decimal
-import seaborn as sn
-import statsmodels.formula.api as smf
-import statsmodels.api as st
 from statsmodels.stats.contingency_tables import (mcnemar, cochrans_q, SquareTable)
 from sklearn.metrics.pairwise import cosine_similarity
 import itertools
 import statsmodels.formula.api as smf
 
 #from datamodeller import cramers_v, _inf_nan_str, cramers_vc
-
-
-def is_categorical(array_like):
-    return array_like.dtype.name == 'category'
-
-def df_to_plotly(df):
-    return {'z': df.values.tolist(),
-            'x': df.columns.tolist(),
-            'y': df.index.tolist()}
-
-def create_directories(all_names):
-    
-    for item in all_names:
-        out_path_im = Path(cwd, "Data/OutIm/"+item)
-        out_path_im.mkdir(parents=True, exist_ok=True)
-        out_path_files = Path(cwd, "Data/Out/"+ item)
-        out_path_files.mkdir(parents=True, exist_ok=True)
-    return 
-def prepare_dataset(file_open):
-    #prepare data frame, unique per data
-    dataset_I = pd.read_csv(file_open, encoding='latin-1')
-    dataset_I["SiteName"] = dataset_I["SiteName"].str.lower()
-    dataset_I["UltimateForm"] = dataset_I["UltimateForm"].str.lower()  
-    return dataset_I 
-
-#this function gives me the first specific type in the dataset
-def get_first_specific_type(dataset):
-    for i, col_name in enumerate(dataset.columns):
-        if len(col_name) > 2 and col_name!="Latitude"and col_name!="Longitude":
-            first_long_col = i
-            if artifact_name=="ring":
-                print(first_long_col)
-                print(col_name)
-            break
-        first_long_col= int(dataset.shape[1]/2)-1
-    if first_long_col==1:
-        first_long_col=3
-    return first_long_col
 
 # create a new context for the decimal format
 ctx = decimal.Context()
@@ -76,14 +34,12 @@ alpha = 1.0 - prob
 flag=False
 cwd = Path.cwd()
 file_I = Path("Data/In/copper_29_11mod.csv")
-
 file_open = cwd / file_I
-
 out_path_gen = Path(cwd, "Data/OutGeneralInfo/")
 out_path_gen.mkdir(parents=True, exist_ok=True)
-dataset_I=prepare_dataset(file_open)
+dataset_I=DataAnalysisFunctions.prepare_dataset(file_open)
 all_names= set(dataset_I['UltimateForm'])
-create_directories(all_names)
+DataAnalysisFunctions.create_directories(all_names, cwd)
 one_site=[]
 one_type = []
 for artifact_name in all_names:
@@ -107,7 +63,7 @@ for artifact_name in all_names:
     dataset.to_csv(file_save, encoding = 'utf-8-sig')
     #scatter plots
     plot_scale = 10 
-    first_specific_type= get_first_specific_type(dataset)
+    first_specific_type= DataAnalysisFunctions.get_first_specific_type(dataset,artifact_name)
     for colid in range(2,first_specific_type):
         fig = go.Figure(data=go.Scatter(
         x=dataset.Longitude, 
@@ -206,24 +162,7 @@ for artifact_name in all_names:
         dataset_G_cs.to_csv(out_path_gen/"G_csbin.csv",encoding = 'utf-8-sig')
         dataset_S_cs.to_csv(out_path_gen/"S_csbin.csv",encoding = 'utf-8-sig')
     if flag:
-        mask = np.triu(np.ones_like(dataset_G_cs, dtype=bool))
-        f, ax = plt.subplots(figsize=(11, 9))
-        cmap = sns.diverging_palette(230, 20, as_cmap=True)
-        sns.heatmap(dataset_G_cs, mask=mask, cmap=cmap, center=0.3,
-                square=True, linewidths=.5, cbar_kws={"shrink": .5})
-        file_save = out_path_im / ("CS_G.png")
-        plt.savefig(file_save, dpi=900)
-        plt.close()
-
-        mask = np.triu(np.ones_like(dataset_S_cs, dtype=bool))
-        f, ax = plt.subplots(figsize=(11, 9))
-        cmap = sns.diverging_palette(230, 20, as_cmap=True)
-        # Draw the heatmap with the mask and correct aspect ratio
-        sns.heatmap(dataset_S_cs, mask=mask, cmap=cmap, center=0.01,
-                square=True, linewidths=.5, cbar_kws={"shrink": .5})
-        file_save = out_path_im / ("CS_S.png")
-        plt.savefig(file_save, dpi=900)
-        plt.close()
+        DataAnalysisFunctions.save_images_heatmaps(dataset_G_cs,dataset_S_cs, out_path_im)
 
     dataset_G_csb = dataset_G_cs.copy()
     dataset_S_csb = dataset_S_cs.copy()
@@ -253,7 +192,6 @@ for artifact_name in all_names:
     dataset_G_csb.rename(columns={'level_0': 'Source', 'level_1': 'Target', 0: 'weight'}, inplace=True)
     file_save = out_path_files / (artifact_name+'_edgesGB.csv')
     dataset_G_csb.to_csv(file_save, float_format="%.4f", index=False) 
-    #aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
     if artifact_name=="ring":
         print(dataset_G_csb)
 
@@ -273,7 +211,6 @@ for artifact_name in all_names:
     dataset_Sbinn=dataset_Sbin
     dataset_Sbinn = dataset_Sbinn.drop(dataset_Sbinn.columns[0], axis = 1)
     if artifact_name=="ring":
-   #     print(dataset_bells_S_cs)
         print(dataset_Sbinn)
 
     M=dataset_Sbinn.shape[1]
@@ -295,6 +232,3 @@ for artifact_name in all_names:
     conections_totals.rename(columns={'level_0': 'Source', 'level_1': 'Target', 0: 'weight'}, inplace=True)
     file_save = out_path_files / (artifact_name+'_edgesSnA.csv')
     conections_totals.to_csv(file_save, float_format="%.4f", index=False)
-
-#print(one_site)
-#print(one_type)
