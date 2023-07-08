@@ -40,10 +40,6 @@ def gettingConstants(points):
         Y0.append(points[siteNames][1])
     return X0,Y0
 
-def solvingMotionEquations(points):
-    
-    return points
-
 def calculateDistanceBetweenTwoPoints(firstPoint, secondPoint):
     return np.linalg.norm(firstPoint - secondPoint)
 def calculateDirectionBetweenTwoPoints(firstPoint, secondPoint):
@@ -70,7 +66,16 @@ def calculateForceMagnitud(pair, dataset_I):
     #    return number
     #else:
     #    return number-0.5
-def calculateForceMagnitud1(pair, dataset_I):
+def calculateForceMagnitud1(pair, dataset_I, flag):
+    #New part to take real distance into account but it is not yet implemented
+    if flag:
+        cwd = Path.cwd()
+        file_I = Path("Data/In/copper_29_11mod.csv")
+        file_open = cwd / file_I
+        dataset_O = pd.read_csv(file_open, encoding='latin-1')
+        print(dataset_O['SiteName'] == pair[0])
+        print(dataset_O.loc[ dataset_O['SiteName'] == pair[0]])
+        print(dataset_O.loc[ dataset_O['SiteName'] == pair[1],'Latitude'])
     M=dataset_I.shape[1]-1
     firstRowNumber = dataset_I.loc[dataset_I["SiteName"]==pair[0]].index[0]
     secondRowNumber = dataset_I.loc[dataset_I["SiteName"]==pair[1]].index[0]
