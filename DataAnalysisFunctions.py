@@ -168,7 +168,7 @@ def get_dataset_g_and_s_sharing_objects_between_sites(dataset_Gbin,dataset_Sbin,
         dataset_S_cs.loc[pair[1], pair[0]] = dataset_S_cs.loc[pair[0], pair[1]]
     
     return dataset_G_cs,dataset_S_cs
-def save_general_edges(artifact_name,dataset_G_csb):
+def save_and_calculate_general_edges(artifact_name,dataset_G_csb):
     dataset_G_csb = dataset_G_csb.reset_index(drop=True)
     dataset_G_csb.columns = range(dataset_G_csb.columns.size)
     dataset_G_csb = dataset_G_csb.mask(np.triu(np.ones_like(dataset_G_csb, dtype=bool),0))
