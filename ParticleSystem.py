@@ -22,6 +22,7 @@ points = Tools.createRandomPoints(dataset_I["SiteName"])
 constX, constY = Tools.gettingConstants(points)
 Tools.printingImagesWithNames(points)
 
+lastPositionDataSet= Tools.creatingNewDataset(dataset_I)
 for t in np.arange(0,Ntmax, dt):
     forces =np.zeros((len(dataset_I),2))
     for pair in itertools.combinations(dataset_I["SiteName"], 2):
@@ -46,8 +47,7 @@ for t in np.arange(0,Ntmax, dt):
         x1=constX[i]+forces[i][0]
         y1=constY[i]+forces[i][1]
         points[siteNames]=np.asarray((x1,y1))
-
-
     print(t)
     Tools.printingImagesWithNames(points)
     #print(t)
+Tools.gettingLastDistances(points,lastPositionDataSet)

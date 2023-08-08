@@ -2,6 +2,7 @@ import numpy as np
 from pathlib import Path
 import pandas as pd
 import matplotlib.pyplot as plt
+import itertools
 def createRandomPoints(siteNames):
     points ={}
     nums = np.random.choice(range(-1,1+1), size=(1, 2), replace=False) 
@@ -12,7 +13,29 @@ def createRandomPoints(siteNames):
         #points = points[distances <= 1]
         points[item] = np.asarray((nums[0][0], nums[0][1]))
     return points
+def creatingNewDataset(original_df):
+    # Extracting the first column
+    first_column = original_df.iloc[:, 0]
+# Creating a new DataFrame with the first column elements as both column and index
+    new_df = pd.DataFrame(index=first_column, columns=first_column)
 
+# Setting diagonal elements to zero using numpy
+    np.fill_diagonal(new_df.values, 0)
+    return new_df
+
+def gettingLastDistances(LocationOfSites,lastPositionDataSet):
+    cwd = Path.cwd()
+    out_path_gen = Path(cwd, "Data/BellsOut/")
+    out_path_gen.mkdir(parents=True, exist_ok=True)
+    out_path_files = Path(cwd, "Data/BellsOut/DistanceData.csv")
+    file_save = out_path_files 
+    for pair in itertools.combinations(lastPositionDataSet.index, 2):
+        x1,y1=LocationOfSites[pair[0]]
+        x2,y2=LocationOfSites[pair[1]]
+        lastPositionDataSet[pair[0]][pair[1]]=calculateDistanceBetweenTwoPoints(LocationOfSites[pair[0]],LocationOfSites[pair[1]])
+        lastPositionDataSet[pair[1]][pair[0]]=(lastPositionDataSet[pair[0]][pair[1]])
+    print(lastPositionDataSet)
+    lastPositionDataSet.to_csv(file_save, encoding = 'utf-8-sig')
 def printingImagesWithNames(points):
     # Create empty lists for x and y coordinates
     x = []
@@ -66,7 +89,7 @@ def calculateForceMagnitud(pair, dataset_I):
     #    return number
     #else:
     #    return number-0.5
-def calculateForceMagnitud1(pair, dataset_I, flag):
+def calculateForceMagnitud1(pair, dataset_I, flag=False):
     #New part to take real distance into account but it is not yet implemented
     if flag:
         cwd = Path.cwd()
