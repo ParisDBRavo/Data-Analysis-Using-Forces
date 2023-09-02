@@ -3,6 +3,12 @@ from pathlib import Path
 import pandas as pd
 import matplotlib.pyplot as plt
 import itertools
+import Forces
+def initializeVelocity(positions):
+    velocity ={}
+    for key, value in positions.items():
+        velocity[key]= np.array([0, 0])
+    return velocity
 def createRandomPoints(siteNames):
     points ={}
     nums = np.random.choice(range(-1,1+1), size=(1, 2), replace=False) 
@@ -23,19 +29,23 @@ def creatingNewDataset(original_df):
     np.fill_diagonal(new_df.values, 0)
     return new_df
 
-def gettingLastDistances(LocationOfSites,lastPositionDataSet):
+def gettingLastDistances(LocationOfSites,lastPositionDataSet, forceToUse):
     cwd = Path.cwd()
     out_path_gen = Path(cwd, "Data/BellsOut/")
     out_path_gen.mkdir(parents=True, exist_ok=True)
-    out_path_files = Path(cwd, "Data/BellsOut/DistanceData.csv")
+    name=archiveName(forceToUse)
+    print(name)
+    out_path_files = Path(cwd, ("Data/BellsOut/"+name))
+    print(out_path_files)
     file_save = out_path_files 
     for pair in itertools.combinations(lastPositionDataSet.index, 2):
         x1,y1=LocationOfSites[pair[0]]
         x2,y2=LocationOfSites[pair[1]]
         lastPositionDataSet[pair[0]][pair[1]]=calculateDistanceBetweenTwoPoints(LocationOfSites[pair[0]],LocationOfSites[pair[1]])
         lastPositionDataSet[pair[1]][pair[0]]=(lastPositionDataSet[pair[0]][pair[1]])
-    print(lastPositionDataSet)
+    #print(lastPositionDataSet)
     lastPositionDataSet.to_csv(file_save, encoding = 'utf-8-sig')
+
 def printingImagesWithNames(points):
     # Create empty lists for x and y coordinates
     x = []
@@ -72,39 +82,39 @@ def deleteZeroesFromBoth(firstArray,SecondArray):
     indices = [i for i, x in enumerate(mask) if x]
     return np.array([firstArray[i] for i in indices]),  np.array([SecondArray[i] for i in indices])
 
-def calculateForceMagnitud(pair, dataset_I):
-    M=dataset_I.shape[1]-1
-    firstRowNumber = dataset_I.loc[dataset_I["SiteName"]==pair[0]].index[0]
-    secondRowNumber = dataset_I.loc[dataset_I["SiteName"]==pair[1]].index[0]
-    dataset_I = dataset_I.drop(dataset_I.columns[0], axis = 1)
-    firstSiteRow, secondSiteRow =deleteZeroesFromBoth(dataset_I.loc[firstRowNumber,:].astype(int),dataset_I.loc[secondRowNumber,:].astype(int))
-    M=len(firstSiteRow)
-    number= np.count_nonzero((firstSiteRow)&(secondSiteRow))/M
-    #First Try
-    if number!=0:
-        return number
-    else:
-        return -0.1
-    #if number>=M/2:
-    #    return number
-    #else:
-    #    return number-0.5
-def calculateForceMagnitud1(pair, dataset_I, flag=False):
-    #New part to take real distance into account but it is not yet implemented
-    if flag:
-        cwd = Path.cwd()
-        file_I = Path("Data/In/copper_29_11mod.csv")
-        file_open = cwd / file_I
-        dataset_O = pd.read_csv(file_open, encoding='latin-1')
-        print(dataset_O['SiteName'] == pair[0])
-        print(dataset_O.loc[ dataset_O['SiteName'] == pair[0]])
-        print(dataset_O.loc[ dataset_O['SiteName'] == pair[1],'Latitude'])
-    M=dataset_I.shape[1]-1
-    firstRowNumber = dataset_I.loc[dataset_I["SiteName"]==pair[0]].index[0]
-    secondRowNumber = dataset_I.loc[dataset_I["SiteName"]==pair[1]].index[0]
-    dataset_I = dataset_I.drop(dataset_I.columns[0], axis = 1)
-    number= np.count_nonzero((dataset_I.loc[firstRowNumber,:].astype(int))&(dataset_I.loc[secondRowNumber,:].astype(int)))/M
-    if number!=0:
-        return number
-    else:
-        return -0.1
+def calculateForceMagnitud(pair, dataset_I, forceToUse):
+    match forceToUse:
+        case 1:
+            #print("Using force where the length of types of bells are reduced based on which are encountered on the sites.")
+            return Forces.forceReducingZeroesConstantRepelent(pair, dataset_I)
+        case 2:
+            #print("Using force where repelent with number of bells not equal and attraction with equal number.")
+            return Forces.forceRepelentNonequal(pair, dataset_I)
+        case 3:
+            #print("Using force where repelent and attraction same number")
+            return Forces.forceAtractionEqualRepelent(pair, dataset_I)
+        case 4:
+            #print("Using force where repelent and attraction same number of multiplication of masses.")
+            return Forces.forceSameGravity(pair, dataset_I)
+        case _:
+            #print("Using default case of force constant repelent force and attraction of number of common bells.")
+            return Forces.forceConstantRepelent(pair, dataset_I)
+
+def archiveName(forceToUse):
+    match forceToUse:
+        case 1:
+            print("Using force where the length of the vector's types of bells are reduced based on which are encountered on the sites.")
+            return("ForceLengthReduced.csv")
+        case 2:
+            print("Using force where repellent with number of bells not equal and attraction with equal number.")
+            return("ForceRepelentNotEqual.csv")
+        case 3:
+            print("Using force where repelent and attraction same number")
+            return("ForceRepelentAttractionSame.csv")
+        case 4:
+            print("Using force where repelent and attraction same number of multiplication of masses.")
+            return("ForceMasses.csv")
+        case _:
+            print("Using default case of force constant repelent force and attraction of number of common bells.")
+            return("DefaultForces.csv")
+

@@ -4,7 +4,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import itertools
 import Tools
-
 #Number of time steps I am going to use
 Nt = 3
 #Parameter that sometimes helps
@@ -22,13 +21,14 @@ points = Tools.createRandomPoints(dataset_I["SiteName"])
 constX, constY = Tools.gettingConstants(points)
 Tools.printingImagesWithNames(points)
 
+forceToUse = 10
 lastPositionDataSet= Tools.creatingNewDataset(dataset_I)
 for t in np.arange(0,Ntmax, dt):
     forces =np.zeros((len(dataset_I),2))
     for pair in itertools.combinations(dataset_I["SiteName"], 2):
         distance=Tools.calculateDistanceBetweenTwoPoints(points[pair[0]], points[pair[1]])
         direction=Tools.calculateDirectionBetweenTwoPoints(points[pair[0]], points[pair[1]])
-        force =Tools.calculateForceMagnitud1(pair,dataset_I)
+        force =Tools.calculateForceMagnitud(pair,dataset_I, forceToUse)
         firstRowNumber = dataset_I.loc[dataset_I["SiteName"]==pair[0]].index[0]
         secondRowNumber = dataset_I.loc[dataset_I["SiteName"]==pair[1]].index[0]
         if distance !=0:
@@ -50,4 +50,4 @@ for t in np.arange(0,Ntmax, dt):
     print(t)
     Tools.printingImagesWithNames(points)
     #print(t)
-Tools.gettingLastDistances(points,lastPositionDataSet)
+Tools.gettingLastDistances(points,lastPositionDataSet, forceToUse)
