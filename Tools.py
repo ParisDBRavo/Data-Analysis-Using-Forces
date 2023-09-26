@@ -9,6 +9,7 @@ def initializeVelocity(positions):
     for key, value in positions.items():
         velocity[key]= np.array([0, 0])
     return velocity
+
 def createRandomPoints(siteNames):
     points ={}
     nums = np.random.choice(range(-1,1+1), size=(1, 2), replace=False) 
@@ -33,6 +34,10 @@ def gettingLastDistances(LocationOfSites,lastPositionDataSet, forceToUse):
     cwd = Path.cwd()
     out_path_gen = Path(cwd, "Data/BellsOut/")
     out_path_gen.mkdir(parents=True, exist_ok=True)
+    name=archiveName(forceToUse)
+    print(name)
+    out_path_files = Path(cwd, ("Data/BellsOut/"+name))
+    print(out_path_files)
     name=archiveName(forceToUse)
     print(name)
     out_path_files = Path(cwd, ("Data/BellsOut/"+name))

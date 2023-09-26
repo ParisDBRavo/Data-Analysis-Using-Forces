@@ -102,10 +102,11 @@ courant = 1
 Ntmax=10
 dt =courant*Ntmax/Nt
 
-cwd = Path.cwd()
-file_I = Path("Data/ThreePointsData/first_three_point_try.csv")
-file_open = cwd / file_I
+cwd = Path.cwd().resolve()
+file_I = Path("TestsThreeParticles/Data/ThreePointsData/first_three_point_try.csv")  # Relative path
 
+file_open = cwd / file_I
+print(cwd)
 dataset_I = pd.read_csv(file_open)
 points = createNonrandomPoints(dataset_I["SiteName"])
 constX, constY = gettingConstants(points)
@@ -142,15 +143,19 @@ for t in np.arange(0,Ntmax, dt):
         print("alfa=", alfa1)
         print("beta=", beta1)
         print("***********************")
+
     #End part where each particle should have it forces of others
     for i, siteNames in enumerate(dataset_I["SiteName"]):
         x1=constX[i]+forces[i][0]
         y1=constY[i]+forces[i][1]
-        
-        print("x1",x1)
-        print("y1",y1)
+        print("***********************")
+        print("x1=",x1)
+        print("y1=",y1)
         print("***********************")
         points[siteNames]=np.asarray((x1,y1))
+    print("----------Site---------")
+    print("t=", t)
+    print(siteNames,points)
 
 
     

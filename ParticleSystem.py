@@ -18,6 +18,10 @@ file_open = cwd / file_I
 
 dataset_I = pd.read_csv(file_open)
 points = Tools.createRandomPoints(dataset_I["SiteName"])
+print(points)
+
+velocity =Tools.initializeVelocity(points)
+print(velocity)
 constX, constY = Tools.gettingConstants(points)
 Tools.printingImagesWithNames(points)
 
