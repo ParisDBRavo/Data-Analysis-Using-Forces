@@ -81,7 +81,7 @@ def gettingConstants(points):
 def calculateDistanceBetweenTwoPoints(firstPoint, secondPoint):
     return np.linalg.norm(firstPoint - secondPoint)
 def calculateDirectionBetweenTwoPoints(firstPoint, secondPoint):
-    return firstPoint-secondPoint
+    return -(firstPoint-secondPoint)
 def deleteZeroesFromBoth(firstArray,SecondArray):
     mask = np.logical_or(firstArray, SecondArray)
     indices = [i for i, x in enumerate(mask) if x]

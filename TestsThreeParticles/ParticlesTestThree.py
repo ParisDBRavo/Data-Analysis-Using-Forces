@@ -3,6 +3,7 @@ from pathlib import Path
 import pandas as pd
 import matplotlib.pyplot as plt
 import itertools
+import CreateGraphs
 def createRandomPoints(siteNames):
     points ={}
     nums = np.random.choice(range(-1,1+1), size=(1, 2), replace=False) 
@@ -57,11 +58,11 @@ def solvingMotionEquations(points):
     return points
 
 def calculateDistanceBetweenTwoPoints(firstPoint, secondPoint):
-    print("Resta",firstPoint - secondPoint)
-    print("distancia",np.linalg.norm(firstPoint - secondPoint))
+    #print("Resta",firstPoint - secondPoint)
+    #print("distancia",np.linalg.norm(firstPoint - secondPoint))
     return np.linalg.norm(firstPoint - secondPoint)
 def calculateDirectionBetweenTwoPoints(firstPoint, secondPoint):
-    return firstPoint-secondPoint
+    return -(firstPoint-secondPoint)
 def deleteZeroesFromBoth(firstArray,SecondArray):
     mask = np.logical_or(firstArray, SecondArray)
     indices = [i for i, x in enumerate(mask) if x]
@@ -95,15 +96,22 @@ def calculateForceMagnitud1(pair, dataset_I):
     else:
         return -0.1
 #Number of time steps I am going to use
-Nt = 10
+Nt = 10000
 #Parameter that sometimes helps
 courant = 1
 #maximum time
-Ntmax=10
+Ntmax=4
 dt =courant*Ntmax/Nt
 
 cwd = Path.cwd().resolve()
 file_I = Path("TestsThreeParticles/Data/ThreePointsData/first_three_point_try.csv")  # Relative path
+
+x1=[]
+y1=[]
+x2=[]
+y2=[]
+x3=[]
+y3=[]
 
 file_open = cwd / file_I
 print(cwd)
@@ -112,6 +120,8 @@ points = createNonrandomPoints(dataset_I["SiteName"])
 constX, constY = gettingConstants(points)
 printingImagesWithNames(points)
 print()
+import time
+start_time = time.time()
 for t in np.arange(0,Ntmax, dt):
     forces =np.zeros((len(dataset_I),2))
     for pair in itertools.combinations(dataset_I["SiteName"], 2):
@@ -120,10 +130,10 @@ for t in np.arange(0,Ntmax, dt):
         #This force is the one between the arrays of the sites
         force =calculateForceMagnitud1(pair,dataset_I)
         #Calculate the i,j position of boths sites in the 
-        print("Points = ",(pair))
-        print("Distance = ", (distance))
-        print("Direction = ", (direction))
-        print("Force=",force)
+        #print("Points = ",(pair))
+        #print("Distance = ", (distance))
+        #print("Direction = ", (direction))
+        #print("Force=",force)
         
         firstRowNumber = dataset_I.loc[dataset_I["SiteName"]==pair[0]].index[0]
         secondRowNumber = dataset_I.loc[dataset_I["SiteName"]==pair[1]].index[0]
@@ -140,24 +150,36 @@ for t in np.arange(0,Ntmax, dt):
         forces[secondRowNumber]+= np.asarray((-alfa1,-beta1))
         #if firstRowNumber==1:
         #    print("Forces=",forces[firstRowNumber])
-        print("alfa=", alfa1)
-        print("beta=", beta1)
-        print("***********************")
+        #print("alfa=", alfa1)
+        #print("beta=", beta1)
+        #print("***********************")
 
     #End part where each particle should have it forces of others
     for i, siteNames in enumerate(dataset_I["SiteName"]):
-        x1=constX[i]+forces[i][0]
-        y1=constY[i]+forces[i][1]
-        print("***********************")
-        print("x1=",x1)
-        print("y1=",y1)
-        print("***********************")
-        points[siteNames]=np.asarray((x1,y1))
-    print("----------Site---------")
-    print("t=", t)
-    print(siteNames,points)
+        x11=constX[i]+forces[i][0]
+        y11=constY[i]+forces[i][1]
+        #print("***********************")
+        #print("x1=",x1)
+        #print("y1=",y1)
+        #print("***********************")
+        points[siteNames]=np.asarray((x11,y11))
+    #print("----------Site---------")
+    #print("t=", t)
+    #print(siteNames,points)
+    x1.append(constX[0]+forces[0][0])
+    y1.append(constY[0]+forces[0][1])
+    x2.append(constX[1]+forces[1][0])
+    y2.append(constY[1]+forces[1][1])
+    x3.append(constX[2]+forces[2][0])
+    y3.append(constY[2]+forces[2][1])
 
 
     
-    printingImagesWithNames(points)
+    ##printingImagesWithNames(points)
     #print(t)
+
+end_time = time.time()
+elapsed_time = end_time - start_time
+
+print(f"Execution time: {elapsed_time} seconds")
+CreateGraphs.createThreeTimeGraph(x1,y1,x2,y2,x3,y3)

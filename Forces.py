@@ -20,7 +20,7 @@ def forceConstantRepelent(pair, dataset_I, flag=False):
     if numberOfBellsInCommon!=0:
         return numberOfBellsInCommon
     else:
-        return -0.1
+        return -0.001
     
 def forceReducingZeroesConstantRepelent(pair, dataset_I):
     lengthOfBellTypes=dataset_I.shape[1]-1
@@ -48,7 +48,7 @@ def forceRepelentNonequal(pair, dataset_I, flag=False):
     if numberOfBellsInCommon!=0:
         return numberOfBellsInCommon
     else:
-        return numberOfBellsInCommon-lengthOfBellTypes
+        return -(np.count_nonzero((dataset_I.loc[firstRowNumber,:].astype(int)))+np.count_nonzero(dataset_I.loc[secondRowNumber,:].astype(int)))/lengthOfBellTypes
 #Los sitios se atraen si tienen por lo menos un cascabel en común, 
 # la fuerza es igual para todos si dos sitios tienen en común algo se atraen con fuerza x y 
 # si no tienen nada en común se repelen con fuerza y, donde x y y son iguales

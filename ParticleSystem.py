@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import itertools
 import Tools
 #Number of time steps I am going to use
-Nt = 3
+Nt = 1000
 #Parameter that sometimes helps
 courant = 1
 #maximum time
@@ -25,8 +25,10 @@ print(velocity)
 constX, constY = Tools.gettingConstants(points)
 Tools.printingImagesWithNames(points)
 
-forceToUse = 10
+forceToUse = 4
 lastPositionDataSet= Tools.creatingNewDataset(dataset_I)
+import time
+start_time = time.time()
 for t in np.arange(0,Ntmax, dt):
     forces =np.zeros((len(dataset_I),2))
     for pair in itertools.combinations(dataset_I["SiteName"], 2):
@@ -52,6 +54,10 @@ for t in np.arange(0,Ntmax, dt):
         y1=constY[i]+forces[i][1]
         points[siteNames]=np.asarray((x1,y1))
     print(t)
-    Tools.printingImagesWithNames(points)
+    #Tools.printingImagesWithNames(points)
     #print(t)
+end_time = time.time()
+elapsed_time = end_time - start_time
+print(elapsed_time)
+Tools.printingImagesWithNames(points)
 Tools.gettingLastDistances(points,lastPositionDataSet, forceToUse)

@@ -7,7 +7,7 @@ x1=[]
 y1=[]
 x2=[]
 y2=[]
-for t in np.arange(0,3,0.1):
+for t in np.arange(0,4,0.1):
     x.append(0.0853*t**2)
     y.append(0.0353*t**2)
     x1.append((0.95-1)*t**2+1)
@@ -22,8 +22,10 @@ plt.plot(x2, y2, label='Apache Creek', color='orange',  linestyle='-')
 # Add labels and a title
 plt.xlabel('X-axis')
 plt.ylabel('Y-axis')
-plt.title('Line Plot of Points')
-
+plt.title('Posición de los sitios a traves del tiempo.')
+plt.text(0, 0, '(0, 0)', color='black', fontsize=10, style='oblique',ha='center', va='bottom')
+plt.text(1, 0, '(1, 0)', color='black', fontsize=10, style='oblique',ha='center', va='bottom')
+plt.text(1, 1, '(1, 1)', color='black', fontsize=10, style='oblique',ha='center', va='bottom')
 # Show a legend (optional)
 plt.legend()
 

@@ -29,7 +29,7 @@ file_open = cwd / file_I
 out_path_gen = Path(cwd, "Data/OutGeneralInfo/")
 out_path_gen.mkdir(parents=True, exist_ok=True)
 dataset_I=DataAnalysisFunctions.prepare_dataset(file_open)
-all_names= set(dataset_I['UltimateForm'])
+all_nmaes= set(dataset_I['UltimateForm'])
 DataAnalysisFunctions.create_directories(all_names, cwd)
 for artifact_name in all_names:
     out_path_im = Path(cwd, "Data/OutIm/"+artifact_name)
