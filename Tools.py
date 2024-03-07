@@ -10,6 +10,14 @@ def initializeVelocity(positions):
         velocity[key]= np.array([0, 0])
     return velocity
 
+def getmasses(pair, dataset_I):
+    firstRowNumber = dataset_I.loc[dataset_I["SiteName"]==pair[0]].index[0]
+    secondRowNumber = dataset_I.loc[dataset_I["SiteName"]==pair[1]].index[0]
+    dataset_I = dataset_I.drop(dataset_I.columns[0], axis = 1)
+    massFirstSite =np.count_nonzero(dataset_I.loc[firstRowNumber,:].astype(int))
+    massSecondSite=np.count_nonzero(dataset_I.loc[secondRowNumber,:].astype(int))
+    return massFirstSite, massSecondSite
+
 def createRandomPoints(siteNames):
     points ={}
     nums = np.random.choice(range(-1,1+1), size=(1, 2), replace=False) 

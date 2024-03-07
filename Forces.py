@@ -23,12 +23,11 @@ def forceConstantRepelent(pair, dataset_I, flag=False):
         return -0.001
     
 def forceReducingZeroesConstantRepelent(pair, dataset_I):
-    lengthOfBellTypes=dataset_I.shape[1]-1
     firstRowNumber = dataset_I.loc[dataset_I["SiteName"]==pair[0]].index[0]
     secondRowNumber = dataset_I.loc[dataset_I["SiteName"]==pair[1]].index[0]
     dataset_I = dataset_I.drop(dataset_I.columns[0], axis = 1)
     firstSiteRow, secondSiteRow =Tools.deleteZeroesFromBoth(dataset_I.loc[firstRowNumber,:].astype(int),dataset_I.loc[secondRowNumber,:].astype(int))
-    lengthOfBellTypes=len(firstSiteRow)
+    lengthOfBellTypes=max(len(firstSiteRow), len(secondSiteRow))
     numberOfBellsInCommon= np.count_nonzero((firstSiteRow)&(secondSiteRow))/lengthOfBellTypes
     #First Try
     if numberOfBellsInCommon!=0:
@@ -68,14 +67,14 @@ def forceAtractionEqualRepelent(pair, dataset_I, flag=False):
 # con que tengan uno en común se atrae si no tienen nada en común se repelen  
 def forceSameGravity(pair, dataset_I, flag=False):
     lengthOfBellTypes=dataset_I.shape[1]-1
+    massFirstSite, massSecondSite =Tools.getmasses(pair, dataset_I)
     firstRowNumber = dataset_I.loc[dataset_I["SiteName"]==pair[0]].index[0]
     secondRowNumber = dataset_I.loc[dataset_I["SiteName"]==pair[1]].index[0]
     dataset_I = dataset_I.drop(dataset_I.columns[0], axis = 1)
     numberOfBellsInCommon= np.count_nonzero((dataset_I.loc[firstRowNumber,:].astype(int))&(dataset_I.loc[secondRowNumber,:].astype(int)))/lengthOfBellTypes
-    massFirstSite =np.count_nonzero(dataset_I.loc[firstRowNumber,:].astype(int))
-    massSecondSite=np.count_nonzero(dataset_I.loc[secondRowNumber,:].astype(int))
     if numberOfBellsInCommon!=0:
         return massFirstSite*massSecondSite
     else:
         return -massFirstSite*massSecondSite
+
     

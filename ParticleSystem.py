@@ -35,11 +35,16 @@ for t in np.arange(0,Ntmax, dt):
         distance=Tools.calculateDistanceBetweenTwoPoints(points[pair[0]], points[pair[1]])
         direction=Tools.calculateDirectionBetweenTwoPoints(points[pair[0]], points[pair[1]])
         force =Tools.calculateForceMagnitud(pair,dataset_I, forceToUse)
+        if force == 4:
+            massFirstSite, massSecondSite =Tools.getmasses(pair, dataset_I)
+        else:
+            massFirstSite =1
+            massSecondSite =1
         firstRowNumber = dataset_I.loc[dataset_I["SiteName"]==pair[0]].index[0]
         secondRowNumber = dataset_I.loc[dataset_I["SiteName"]==pair[1]].index[0]
         if distance !=0:
-            alfa1=(1/distance)*0.5*force*direction[0]*t**2
-            beta1=(1/distance)*0.5*force*direction[1]*t**2
+            alfa1=((1/distance)*0.5*force*direction[0]*dt**2)/massSecondSite
+            beta1=((1/distance)*0.5*force*direction[1]*dt**2)/massFirstSite
         else:
             alfa1=0.0
             beta1=0.0
