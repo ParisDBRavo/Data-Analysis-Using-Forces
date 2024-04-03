@@ -9,7 +9,7 @@ Nt = 1000
 #Parameter that sometimes helps
 courant = 1
 #maximum time
-Ntmax=100
+Ntmax=10000
 dt =courant*Ntmax/Nt
 
 cwd = Path.cwd()
@@ -35,16 +35,17 @@ for t in np.arange(0,Ntmax, dt):
         distance=Tools.calculateDistanceBetweenTwoPoints(points[pair[0]], points[pair[1]])
         direction=Tools.calculateDirectionBetweenTwoPoints(points[pair[0]], points[pair[1]])
         force =Tools.calculateForceMagnitud(pair,dataset_I, forceToUse)
-        if force == 4:
+        if forceToUse == 4:
             massFirstSite, massSecondSite =Tools.getmasses(pair, dataset_I)
         else:
             massFirstSite =1
             massSecondSite =1
+        #print("mass1" , massFirstSite, "mass2", massSecondSite)
         firstRowNumber = dataset_I.loc[dataset_I["SiteName"]==pair[0]].index[0]
         secondRowNumber = dataset_I.loc[dataset_I["SiteName"]==pair[1]].index[0]
         if distance !=0:
-            alfa1=((1/distance)*0.5*force*direction[0]*dt**2)/massSecondSite
-            beta1=((1/distance)*0.5*force*direction[1]*dt**2)/massFirstSite
+            alfa1=((1/distance)*0.5*force*direction[0]*dt**2)/massFirstSite
+            beta1=((1/distance)*0.5*force*direction[1]*dt**2)/massSecondSite
         else:
             alfa1=0.0
             beta1=0.0
@@ -58,7 +59,7 @@ for t in np.arange(0,Ntmax, dt):
         x1=constX[i]+forces[i][0]
         y1=constY[i]+forces[i][1]
         points[siteNames]=np.asarray((x1,y1))
-    print(t)
+    print(t/Ntmax*100)
     #Tools.printingImagesWithNames(points)
     #print(t)
 end_time = time.time()
